@@ -1,5 +1,5 @@
 [package]
-name = "gym-shcedule"
+name = "gym-schedule"
 version = "0.1.0"
 authors = ["BoudBoud47 <mehdi.boudart@gmail.com>"]
 edition = "2018"
