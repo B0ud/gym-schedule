@@ -1,7 +1,18 @@
 use actix_web::get;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder};
 use listenfd::ListenFd;
 use std::sync::Mutex;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
+
+use std::env;
+
+mod models;
+mod schema;
 
 // This struct represents state
 struct AppState {
@@ -36,6 +47,7 @@ fn index3() -> impl Responder {
 
 fn main() {
     println!("Hello, world!");
+    dotenv::dotenv().ok();
     let mut listenfd = ListenFd::from_env();
     let counter = web::Data::new(AppStateWithCounter {
         counter: Mutex::new(0),
@@ -45,6 +57,7 @@ fn main() {
         App::new()
             .register_data(counter.clone())
             .route("/2", web::get().to(_index)) // <- register the created data
+            .data(models::manage_database().clone())
             .data(AppState {
                 app_name: String::from("Actix-web"),
             })
