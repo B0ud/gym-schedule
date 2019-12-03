@@ -9,10 +9,10 @@ use futures::future::{err, Either};
 use futures::{Future, Stream};
 
 fn get_exercises(pool: web::Data<Pool>) -> Result<Trainings, diesel::result::Error> {
-    use crate::schema::trainings::dsl::*;
+    use crate::schema::trainings;
 
     let conn: &PgConnection = &pool.get().unwrap();
     // diesel::select()
     // let trainings_result = Trainings::
-    trainings::
+    let result: Vec<Trainings> = trainings::table.load(conn).unwrap();
 }
