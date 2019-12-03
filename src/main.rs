@@ -1,9 +1,9 @@
 #![allow(warnings)]
 use actix_web::get;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use futures::future::{ok, Future};
 use listenfd::ListenFd;
 use std::sync::Mutex;
-
 extern crate r2d2;
 
 #[macro_use]
@@ -13,6 +13,8 @@ extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
 
+mod database;
+mod handler;
 mod models;
 mod schema;
 
@@ -60,6 +62,8 @@ fn main() {
             .data(AppState {
                 app_name: String::from("Actix-web"),
             })
+            .route("/sync", web::get().to(handler::object_index))
+            // .route("/3", web::get().to(handler::index))
             .route("/", web::get().to(index))
     });
 

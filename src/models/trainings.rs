@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::schema::trainings;
 
 #[derive(Debug, Queryable)]
-#[table_name = "trainings"]
+//#[table_name = "trainings"]
 pub struct Trainings {
     pub id: Uuid,
     pub name: String,
