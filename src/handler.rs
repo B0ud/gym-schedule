@@ -1,10 +1,15 @@
-use actix_web::{Error, HttpRequest, HttpResponse, Responder};
-use futures::future::{ok, Future};
+use crate::database;
+use crate::models::Pool;
+use actix_web::{
+    error, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
+};
+use futures::future::Future;
+use futures::future::{err, Either};
 use serde::Serialize;
 
 #[derive(Serialize)]
 struct MyObj {
-    name: &'static str,
+    name: String,
 }
 
 // Responder
@@ -27,6 +32,31 @@ pub fn index(_req: HttpRequest) -> &'static str {
 }
 
 pub fn object_index() -> impl Responder {
-    MyObj { name: "user" }
+    MyObj {
+        name: "user".to_string(),
+    }
 }
+
+pub fn get_all_trainings_2(
+    pool: web::Data<Pool>,
+) -> impl Future<Item = HttpResponse, Error = Error> {
+    web::block(move || database::get_exercises(pool)).then(|res| match res {
+        Ok(trainings_list) => Ok(HttpResponse::Ok().json(MyObj {
+            name: "works".to_string(),
+        })),
+        Err(_) => Ok(HttpResponse::InternalServerError().into()),
+    })
+}
+
+/*pub fn get_all_trainings(pool: web::Data<Pool>) -> impl Future<Item = HttpResponse, Error = Error> {
+    match database::get_exercises(pool) {
+        Ok(traingins_list) => ok(HttpResponse::Ok().json(MyObj {
+            name: traingins_list.get(0).unwrap().name,
+        })),
+        Err(err) => Ok(HttpResponse::BadRequest().json(MyObj {
+            name: "Erreur".to_string(),
+        })),
+    }
+    // Ok(HttpResponse::Ok())
+}*/
 //fn index(data: web::Data<AppState>) {}

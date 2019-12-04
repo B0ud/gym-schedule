@@ -3,13 +3,24 @@ use uuid::Uuid;
 
 use crate::schema::trainings;
 
-#[derive(Debug, Queryable)]
 //#[table_name = "trainings"]
+#[derive(Debug, Queryable)]
 pub struct Trainings {
     pub id: Uuid,
     pub name: String,
-    pub description: String,
-    pub image: String,
+    pub description: Option<String>,
+    pub image: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+// Json Response Object
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TrainingsResponse {
+    pub id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
+    pub image: Option<String>,
 }

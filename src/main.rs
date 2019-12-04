@@ -1,7 +1,7 @@
 #![allow(warnings)]
 use actix_web::get;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use futures::future::{ok, Future};
+use futures::future::Future;
 use listenfd::ListenFd;
 use std::sync::Mutex;
 extern crate r2d2;
