@@ -1,5 +1,5 @@
 use crate::database;
-use crate::models::Pool;
+use crate::models::{Pool, TrainingsResponse};
 use actix_web::{
     error, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
 };
@@ -41,9 +41,12 @@ pub fn get_all_trainings_2(
     pool: web::Data<Pool>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || database::get_exercises(pool)).then(|res| match res {
-        Ok(trainings_list) => Ok(HttpResponse::Ok().json(MyObj {
-            //name: trainings_list.get(1).unwrap().name.to_string()
-            name  : "works".to_string()
+        Ok(trainings_list) => Ok(HttpResponse::Ok().json(TrainingsResponse {
+            name: trainings_list.get(0).unwrap().name.to_string(),
+            description: trainings_list.get(0).unwrap().description.,
+            image: trainings_list.get(0).unwrap().image,
+            id: trainings_list.get(0).unwrap().id
+            //name  : "works".to_string()
         })),
         Err(_) => Ok(HttpResponse::InternalServerError().into()),
     })
