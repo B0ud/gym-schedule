@@ -63,6 +63,7 @@ fn main() {
                 app_name: String::from("Actix-web"),
             })
             .route("/sync", web::get().to(handler::object_index))
+            .service(web::resource("/db").route(web::get().to_async(handler::get_all_trainings_2)))
             // .route("/3", web::get().to(handler::index))
             .route("/", web::get().to(index))
     });

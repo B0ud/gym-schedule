@@ -42,7 +42,8 @@ pub fn get_all_trainings_2(
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || database::get_exercises(pool)).then(|res| match res {
         Ok(trainings_list) => Ok(HttpResponse::Ok().json(MyObj {
-            name: "works".to_string(),
+            //name: trainings_list.get(1).unwrap().name.to_string()
+            name  : "works".to_string()
         })),
         Err(_) => Ok(HttpResponse::InternalServerError().into()),
     })
