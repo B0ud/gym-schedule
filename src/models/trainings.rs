@@ -34,3 +34,10 @@ impl From<Trainings> for TrainingsResponse {
         }
     }
 }
+#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize)]
+pub struct ListResult<T> {
+    pub offset: u32,
+    pub total: u32,
+    pub items: Vec<T>,
+}

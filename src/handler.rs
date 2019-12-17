@@ -1,5 +1,5 @@
 use crate::database;
-use crate::models::{Pool, TrainingsResponse};
+use crate::models::{ListResult, Pool, TrainingsResponse};
 use actix_web::{
     error, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
 };
@@ -42,27 +42,17 @@ pub fn get_all_trainings_2(
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || database::get_exercises(pool)).then(|res| match res {
         Ok(trainings_list) => {
-            let mut list: Vec<TrainingsResponse> = Vec::new();
-            for tr in trainings_list.into_iter() {
-                let toto: TrainingsResponse = TrainingsResponse::from(tr);
-                list.push(toto);
-            }
-            // trainings_list.list.push(toto);
-            Ok(HttpResponse::Ok().json(list))
+            // let mut list: Vec<TrainingsResponse> = Vec::new();
+            let mut list: Vec<TrainingsResponse> = trainings_list
+                .into_iter()
+                .map(|tr| TrainingsResponse::from(tr))
+                .collect();
+            Ok(HttpResponse::Ok().json(ListResult {
+                offset: 0,
+                total: 0,
+                items: list,
+            }))
         }
         Err(_) => Ok(HttpResponse::InternalServerError().into()),
     })
 }
-
-/*pub fn get_all_trainings(pool: web::Data<Pool>) -> impl Future<Item = HttpResponse, Error = Error> {
-    match database::get_exercises(pool) {
-        Ok(traingins_list) => ok(HttpResponse::Ok().json(MyObj {
-            name: traingins_list.get(0).unwrap().name,
-        })),
-        Err(err) => Ok(HttpResponse::BadRequest().json(MyObj {
-            name: "Erreur".to_string(),
-        })),
-    }
-    // Ok(HttpResponse::Ok())
-}*/
-//fn index(data: web::Data<AppState>) {}
