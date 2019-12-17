@@ -44,7 +44,7 @@ fn main() {
 
     //INIT LOGGER
     dotenv::dotenv().ok();
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "actix_web=debug");
 
     env_logger::init();
 

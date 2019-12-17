@@ -41,13 +41,15 @@ pub fn get_all_trainings_2(
     pool: web::Data<Pool>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || database::get_exercises(pool)).then(|res| match res {
-        Ok(trainings_list) => Ok(HttpResponse::Ok().json(TrainingsResponse {
-            name: trainings_list.get(0).unwrap().name.to_string(),
-            description: trainings_list.get(0).unwrap().description.,
-            image: trainings_list.get(0).unwrap().image,
-            id: trainings_list.get(0).unwrap().id
-            //name  : "works".to_string()
-        })),
+        Ok(trainings_list) => {
+            let mut list: Vec<TrainingsResponse> = Vec::new();
+            for tr in trainings_list.into_iter() {
+                let toto: TrainingsResponse = TrainingsResponse::from(tr);
+                list.push(toto);
+            }
+            // trainings_list.list.push(toto);
+            Ok(HttpResponse::Ok().json(list))
+        }
         Err(_) => Ok(HttpResponse::InternalServerError().into()),
     })
 }

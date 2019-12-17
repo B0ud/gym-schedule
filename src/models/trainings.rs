@@ -24,3 +24,13 @@ pub struct TrainingsResponse {
     pub description: Option<String>,
     pub image: Option<String>,
 }
+impl From<Trainings> for TrainingsResponse {
+    fn from(trainings: Trainings) -> Self {
+        TrainingsResponse {
+            id: trainings.id,
+            name: trainings.name,
+            description: trainings.description,
+            image: trainings.image,
+        }
+    }
+}
