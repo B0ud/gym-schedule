@@ -12,9 +12,9 @@ use crate::pagination::Paginate;
 //
 pub fn get_exercises(
     pool: web::Data<Pool>,
-) -> Result<Vec<(Trainings, i64)>, diesel::result::Error> {
+) -> Result<(Vec<Trainings>, i64), diesel::result::Error> {
     use crate::schema::trainings;
     let conn: &PgConnection = &pool.get().unwrap();
     let mut query = trainings::table.into_boxed().paginate(1, 1);
-    query.load::<(Trainings, i64)>(conn)
+    query.load_and_count_total::<(Trainings)>(conn)
 }

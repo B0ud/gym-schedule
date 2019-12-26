@@ -41,16 +41,12 @@ pub fn get_all_trainings_2(
     pool: web::Data<Pool>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
     web::block(move || database::get_exercises(pool)).then(|res| match res {
-        Ok((trainings_list_and_total)) => {
+        Ok((trainings_list, total)) => {
             // let mut list: Vec<TrainingsResponse> = Vec::new();
-            let total = trainings_list_and_total
-                .get(0)
-                .map(|&(_, t)| t)
-                .unwrap_or(0);
 
-            let list: Vec<TrainingsResponse> = trainings_list_and_total
+            let list: Vec<TrainingsResponse> = trainings_list
                 .into_iter()
-                .map(|(tr, total)| TrainingsResponse::from(tr))
+                .map(|tr| TrainingsResponse::from(tr))
                 .collect();
 
             Ok(HttpResponse::Ok().json(ListResult {

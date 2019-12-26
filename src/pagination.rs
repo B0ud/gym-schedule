@@ -29,13 +29,13 @@ impl<T: Query> Query for Paginated<T> {
 }
 
 impl<T> Paginated<T> {
-    pub fn load_and_count_pages<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
+    pub fn load_and_count_total<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
     where
         Self: LoadQuery<PgConnection, (U, i64)>,
     {
         let results = self.load::<(U, i64)>(conn)?;
-        let total = results.get(0).map(|x| x.1).unwrap_or(0);
-        let records = results.into_iter().map(|x| x.0).collect();
+        let total: i64 = results.get(0).map(|x| x.1).unwrap_or(0);
+        let records: Vec<U> = results.into_iter().map(|x| x.0).collect();
         Ok((records, total))
     }
 }
