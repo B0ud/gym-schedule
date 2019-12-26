@@ -16,6 +16,7 @@ extern crate serde_json;
 mod database;
 mod handler;
 mod models;
+mod pagination;
 mod schema;
 
 // This struct represents state

@@ -7,14 +7,14 @@ use diesel::r2d2::{self, ConnectionManager};
 use futures::future::{err, Either};
 use futures::{Future, Stream};
 
+use crate::pagination::Paginate;
+
 //
-pub fn get_exercises(pool: web::Data<Pool>) -> Result<Vec<Trainings>, diesel::result::Error> {
+pub fn get_exercises(
+    pool: web::Data<Pool>,
+) -> Result<Vec<(Trainings, i64)>, diesel::result::Error> {
     use crate::schema::trainings;
-
     let conn: &PgConnection = &pool.get().unwrap();
-    // diesel::select()
-    // let trainings_result = Trainings::
-    let result = trainings::table.load::<Trainings>(conn);
-
-    result
+    let mut query = trainings::table.into_boxed().paginate(1, 1);
+    query.load::<(Trainings, i64)>(conn)
 }
