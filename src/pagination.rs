@@ -7,12 +7,12 @@ use diesel::sql_types::BigInt;
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct Paginated<T> {
     query: T,
-    limit: i64,
-    offset: i64,
+    limit: Option<i64>,
+    offset: Option<i64>,
 }
 
 pub trait Paginate: AsQuery + Sized {
-    fn paginate(self, limit: i64, offset: i64) -> Paginated<Self::Query> {
+    fn paginate(self, limit: Option<i64>, offset: Option<i64>) -> Paginated<Self::Query> {
         Paginated {
             query: self.as_query(),
             limit,
@@ -47,10 +47,21 @@ where
     fn walk_ast(&self, mut out: AstPass<Pg>) -> QueryResult<()> {
         out.push_sql("SELECT *, COUNT(*) OVER () FROM (");
         self.query.walk_ast(out.reborrow())?;
-        out.push_sql(") t LIMIT ");
-        out.push_bind_param::<BigInt, _>(&self.limit)?;
-        out.push_sql(" OFFSET ");
-        out.push_bind_param::<BigInt, _>(&self.offset)?;
+
+        match &self.limit {
+            None => out.push_sql(") t "),
+            Some(limit) => {
+                out.push_sql(") t LIMIT ");
+                out.push_bind_param::<BigInt, _>(limit)?;
+            }
+        }
+        match &self.offset {
+            None => (),
+            Some(offset) => {
+                out.push_sql(" OFFSET ");
+                out.push_bind_param::<BigInt, _>(offset)?;
+            }
+        }
         Ok(())
     }
 }

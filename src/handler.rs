@@ -5,11 +5,19 @@ use actix_web::{
 };
 use futures::future::Future;
 use futures::future::{err, Either};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use std::borrow::BorrowMut;
+use std::fmt::{self, Display, Formatter};
 
 #[derive(Serialize)]
 struct MyObj {
     name: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, Copy, Clone)]
+pub struct PaginationQuery {
+    pub limit: Option<u32>,
+    pub offset: Option<u32>,
 }
 
 // Responder
@@ -38,23 +46,29 @@ pub fn object_index() -> impl Responder {
 }
 
 pub fn get_all_trainings_2(
+    query: web::Query<PaginationQuery>,
     pool: web::Data<Pool>,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
-    web::block(move || database::get_exercises(pool)).then(|res| match res {
-        Ok((trainings_list, total)) => {
-            // let mut list: Vec<TrainingsResponse> = Vec::new();
+    let pagination = query.into_inner();
 
-            let list: Vec<TrainingsResponse> = trainings_list
-                .into_iter()
-                .map(|tr| TrainingsResponse::from(tr))
-                .collect();
+    // Thread Blocking
+    web::block(move || database::get_exercises(pool, pagination)).then(move |res| {
+        match res {
+            Ok((trainings_list, total)) => {
+                // let mut list: Vec<TrainingsResponse> = Vec::new();
 
-            Ok(HttpResponse::Ok().json(ListResult {
-                offset: 0,
-                total: total as u32,
-                items: list,
-            }))
+                let list: Vec<TrainingsResponse> = trainings_list
+                    .into_iter()
+                    .map(|tr| TrainingsResponse::from(tr))
+                    .collect();
+
+                Ok(HttpResponse::Ok().json(ListResult {
+                    offset: pagination.offset.unwrap_or(0),
+                    total: total as u32,
+                    items: list,
+                }))
+            }
+            Err(_) => Ok(HttpResponse::InternalServerError().into()),
         }
-        Err(_) => Ok(HttpResponse::InternalServerError().into()),
     })
 }

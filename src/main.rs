@@ -12,6 +12,11 @@ extern crate diesel;
 extern crate serde_derive;
 #[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate log;
+use env_logger::Builder;
+use log::Level;
+use std::env;
 
 mod database;
 mod handler;
@@ -47,7 +52,11 @@ fn main() {
     dotenv::dotenv().ok();
     std::env::set_var("RUST_LOG", "actix_web=debug");
 
-    env_logger::init();
+    //env_logger::init();
+
+    Builder::new()
+        .parse_filters(&std::env::var("MY_APP_LOG").unwrap_or_default())
+        .init();
 
     let mut listenfd = ListenFd::from_env();
     let counter = web::Data::new(AppStateWithCounter {
