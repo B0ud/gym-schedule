@@ -1,17 +1,15 @@
-use crate::models::Pool;
-use crate::models::Trainings;
-use actix_web::{error, middleware, web, App, Error, HttpResponse, HttpServer};
-use diesel;
+use crate::config::db_config::Pool;
+use crate::models::{PaginationQuery, Trainings};
+use crate::pagination::Paginate;
+use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use futures::future::{err, Either};
 use futures::{Future, Stream};
 
-use crate::handler::PaginationQuery;
-use crate::pagination::Paginate;
-
-//
-pub fn get_exercises(
+/// Get All trainings
+/// Optional pagination  passed to diesel dsl orm
+pub fn get_trainings(
     pool: web::Data<Pool>,
     pagination: PaginationQuery,
 ) -> Result<(Vec<Trainings>, i64), diesel::result::Error> {
