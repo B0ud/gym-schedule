@@ -30,9 +30,21 @@ struct AppState {
     app_name: String,
 }
 
+embed_migrations!();
 fn main() {
-    //INIT LOGGER
     dotenv::dotenv().ok();
+
+    /// Migration Database
+    let connection = config::db_config::establish_connection();
+    ///
+    ///     // This will run the necessary migrations.*/
+    /// embedded_migrations::run(&connection);
+    ///
+    ///     // By default the output is thrown out. If you want to redirect it to stdout, you
+    ///     // should call embedded_migrations::run_with_output.
+    embedded_migrations::run_with_output(&connection, &mut std::io::stdout());
+
+    //INIT LOGGER
     std::env::set_var("RUST_LOG", "actix_web=debug");
 
     //env_logger::init();
