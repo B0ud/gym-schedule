@@ -9,7 +9,9 @@ edition = "2018"
 [dependencies]
 actix-web = "1.0.9"
 listenfd = "0.3"
+diesel_migrations = "1.4.0"
 diesel = { version = "1.4.3", features = ["chrono", "postgres", "r2d2", "uuidv07", "serde_json"] }
+openssl = "*"
 r2d2 = "0.8"
 dotenv = "0.15.0"
 serde = "1.0.103"
