@@ -1,0 +1,5 @@
+target/
+Dockerfile
+.github
+.idea
+README.MD
