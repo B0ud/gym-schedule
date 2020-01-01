@@ -71,6 +71,7 @@ async fn main() -> std::io::Result<()> {
                 app_name: String::from("Actix-web"),
             })
             .service(web::resource("/db").route(web::get().to(trainings::get_all_trainings)))
+            .service(web::resource("/db2").route(web::get().to(trainings::get_training)))
     });
 
     // Hot Reload

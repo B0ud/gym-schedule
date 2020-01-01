@@ -34,3 +34,14 @@ pub async fn get_all_trainings(
         })
         .map_err(|_| HttpResponse::InternalServerError().into())
 }
+
+pub async fn get_training(pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
+    web::block(move || db::get_training_by_id(pool, "0011"))
+        .await
+        .map(|(training)| {
+            // let mut list: Vec<TrainingsResponse> = Vec::new();
+            let response: TrainingsResponse = TrainingsResponse::from(training);
+            HttpResponse::Ok().json(response)
+        })
+        .map_err(|_| HttpResponse::InternalServerError().into())
+}
