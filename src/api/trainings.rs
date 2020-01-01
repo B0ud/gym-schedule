@@ -17,7 +17,7 @@ pub async fn get_all_trainings(
     let pagination = query.into_inner();
 
     // Thread Blocking
-    Ok(web::block(move || db::get_trainings(pool, pagination))
+    web::block(move || db::get_trainings(pool, pagination))
         .await
         .map(|(trainings_list, total)| {
             // let mut list: Vec<TrainingsResponse> = Vec::new();
@@ -32,5 +32,5 @@ pub async fn get_all_trainings(
                 items: list,
             })
         })
-        .map_err(|_| HttpResponse::InternalServerError())?)
+        .map_err(|_| HttpResponse::InternalServerError().into())
 }
