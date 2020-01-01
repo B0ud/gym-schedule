@@ -34,7 +34,8 @@ struct AppState {
 }
 
 embed_migrations!();
-fn main() {
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
 
     /// Migration Database
@@ -69,7 +70,7 @@ fn main() {
             .data(AppState {
                 app_name: String::from("Actix-web"),
             })
-            .service(web::resource("/db").route(web::get().to_async(trainings::get_all_trainings)))
+            .service(web::resource("/db").route(web::get().to(trainings::get_all_trainings)))
     });
 
     // Hot Reload
@@ -78,7 +79,7 @@ fn main() {
     } else {
         server.bind("0.0.0.0:3000").unwrap()
     };
-    server.run().unwrap();
+    server.run().await
 
     /* .bind("127.0.0.1:8088")
     .unwrap()

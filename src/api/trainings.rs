@@ -10,30 +10,27 @@ use serde::{Deserialize, Serialize};
 use std::borrow::BorrowMut;
 use std::fmt::{self, Display, Formatter};
 
-pub fn get_all_trainings(
+pub async fn get_all_trainings(
     query: web::Query<PaginationQuery>,
     pool: web::Data<Pool>,
-) -> impl Future<Item = HttpResponse, Error = Error> {
+) -> Result<HttpResponse, Error> {
     let pagination = query.into_inner();
 
     // Thread Blocking
-    web::block(move || db::get_trainings(pool, pagination)).then(move |res| {
-        match res {
-            Ok((trainings_list, total)) => {
-                // let mut list: Vec<TrainingsResponse> = Vec::new();
+    Ok(web::block(move || db::get_trainings(pool, pagination))
+        .await
+        .map(|(trainings_list, total)| {
+            // let mut list: Vec<TrainingsResponse> = Vec::new();
+            let list: Vec<TrainingsResponse> = trainings_list
+                .into_iter()
+                .map(|tr| TrainingsResponse::from(tr))
+                .collect();
 
-                let list: Vec<TrainingsResponse> = trainings_list
-                    .into_iter()
-                    .map(|tr| TrainingsResponse::from(tr))
-                    .collect();
-
-                Ok(HttpResponse::Ok().json(ListResult {
-                    offset: pagination.offset.unwrap_or(0),
-                    total: total as u32,
-                    items: list,
-                }))
-            }
-            Err(_) => Ok(HttpResponse::InternalServerError().into()),
-        }
-    })
+            HttpResponse::Ok().json(ListResult {
+                offset: pagination.offset.unwrap_or(0),
+                total: total as u32,
+                items: list,
+            })
+        })
+        .map_err(|_| HttpResponse::InternalServerError())?)
 }
