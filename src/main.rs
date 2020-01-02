@@ -54,7 +54,7 @@ async fn main() -> std::io::Result<()> {
     //env_logger::init();
 
     Builder::new()
-        .parse_filters(&std::env::var("MY_APP_LOG").unwrap_or("info".parse().unwrap()))
+        .parse_filters(&std::env::var("MY_APP_LOG").unwrap_or("debug".parse().unwrap()))
         .init();
 
     //
@@ -70,8 +70,8 @@ async fn main() -> std::io::Result<()> {
             .data(AppState {
                 app_name: String::from("Actix-web"),
             })
-            .service(web::resource("/db").route(web::get().to(trainings::get_all_trainings)))
-            .service(web::resource("/db2").route(web::get().to(trainings::get_training)))
+            .service(web::resource("/trainings").route(web::get().to(trainings::get_all_trainings)))
+            .service(web::resource("/trainings/{id}").route(web::get().to(trainings::get_training)))
     });
 
     // Hot Reload

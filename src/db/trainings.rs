@@ -27,11 +27,11 @@ pub fn get_trainings(
 
 pub fn get_training_by_id(
     pool: web::Data<Pool>,
-    id_param: &str,
+    id_param: Uuid,
 ) -> Result<Trainings, diesel::result::Error> {
     use crate::schema::trainings;
-    let uuid_id: Uuid = Uuid::parse_str(id_param).unwrap();
+    // let uuid_id: Uuid = Uuid::parse_str(id_param).unwrap();
     let conn: &PgConnection = &pool.get().unwrap();
-    let toto = trainings::table.find(uuid_id).first(conn);
+    let toto = trainings::table.find(id_param).first(conn);
     toto
 }

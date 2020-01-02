@@ -9,6 +9,7 @@ use futures::future::{err, Either};
 use serde::{Deserialize, Serialize};
 use std::borrow::BorrowMut;
 use std::fmt::{self, Display, Formatter};
+use uuid::Uuid;
 
 pub async fn get_all_trainings(
     query: web::Query<PaginationQuery>,
@@ -35,13 +36,18 @@ pub async fn get_all_trainings(
         .map_err(|_| HttpResponse::InternalServerError().into())
 }
 
-pub async fn get_training(pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
-    web::block(move || db::get_training_by_id(pool, "0011"))
-        .await
-        .map(|(training)| {
-            // let mut list: Vec<TrainingsResponse> = Vec::new();
-            let response: TrainingsResponse = TrainingsResponse::from(training);
-            HttpResponse::Ok().json(response)
-        })
-        .map_err(|_| HttpResponse::InternalServerError().into())
+pub async fn get_training(req: HttpRequest, pool: web::Data<Pool>) -> Result<HttpResponse, Error> {
+    match req.match_info().get("id").unwrap().parse() {
+        Ok(id) => {
+            web::block(move || db::get_training_by_id(pool, id))
+                .await
+                .map(|(training)| {
+                    // let mut list: Vec<TrainingsResponse> = Vec::new();
+                    let response: TrainingsResponse = TrainingsResponse::from(training);
+                    HttpResponse::Ok().json(response)
+                })
+                .map_err(|_| HttpResponse::InternalServerError().into())
+        }
+        Err(e) => Err(HttpResponse::BadRequest().into()),
+    }
 }

@@ -14,6 +14,19 @@ pub struct Trainings {
     pub updated_at: NaiveDateTime,
 }
 
+/*impl Default for Trainings {
+    fn default() -> Trainings {
+        Trainings {
+            id: Uuid::new_v4(),
+            name: "".to_string(),
+            description: None,
+            image: None,
+            created_at: (),
+            updated_at: (),
+        }
+    }
+}*/
+
 // Json Response Object
 
 #[derive(Debug, Serialize)]
