@@ -1,7 +1,8 @@
 use crate::config::db_config::Pool;
-use crate::models::{PaginationQuery, Trainings};
+use crate::models::{NewTrainings, PaginationQuery, Trainings};
 use crate::pagination::Paginate;
 use actix_web::{middleware, web, App, Error, HttpResponse, HttpServer};
+use diesel::insert_into;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 use futures::future::{err, Either};
@@ -30,8 +31,21 @@ pub fn get_training_by_id(
     id_param: Uuid,
 ) -> Result<Trainings, diesel::result::Error> {
     use crate::schema::trainings;
-    // let uuid_id: Uuid = Uuid::parse_str(id_param).unwrap();
     let conn: &PgConnection = &pool.get().unwrap();
-    let toto = trainings::table.find(id_param).first(conn);
-    toto
+    let training_result = trainings::table.find(id_param).first(conn);
+    training_result
+}
+
+pub fn create_new_training(
+    pool: web::Data<Pool>,
+    new_training: NewTrainings,
+) -> Result<Trainings, diesel::result::Error> {
+    use crate::schema::trainings;
+    let conn: &PgConnection = &pool.get().unwrap();
+
+    let training_result = insert_into(trainings::table)
+        .values(&new_training)
+        .get_result::<Trainings>(conn);
+
+    training_result
 }

@@ -70,7 +70,11 @@ async fn main() -> std::io::Result<()> {
             .data(AppState {
                 app_name: String::from("Actix-web"),
             })
-            .service(web::resource("/trainings").route(web::get().to(trainings::get_all_trainings)))
+            .service(
+                web::resource("/trainings")
+                    .route(web::get().to(trainings::get_all_trainings))
+                    .route(web::post().to(trainings::create_new_training)),
+            )
             .service(web::resource("/trainings/{id}").route(web::get().to(trainings::get_training)))
     });
 

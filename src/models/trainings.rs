@@ -14,6 +14,14 @@ pub struct Trainings {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Debug, Insertable, Deserialize)]
+#[table_name = "trainings"]
+pub struct NewTrainings {
+    pub name: String,
+    pub description: Option<String>,
+    pub image: Option<String>,
+}
+
 /*impl Default for Trainings {
     fn default() -> Trainings {
         Trainings {

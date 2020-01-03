@@ -1,6 +1,6 @@
 use crate::config::db_config::Pool;
 use crate::db;
-use crate::models::{ListResult, PaginationQuery, TrainingsResponse};
+use crate::models::{ListResult, NewTrainings, PaginationQuery, TrainingsResponse};
 use actix_web::{
     error, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
 };
@@ -50,4 +50,19 @@ pub async fn get_training(req: HttpRequest, pool: web::Data<Pool>) -> Result<Htt
         }
         Err(e) => Err(HttpResponse::BadRequest().into()),
     }
+}
+
+pub async fn create_new_training(
+    req: HttpRequest,
+    pool: web::Data<Pool>,
+    new_training: web::Json<NewTrainings>,
+) -> Result<HttpResponse, Error> {
+    web::block(move || db::create_new_training(pool, new_training.into_inner()))
+        .await
+        .map(|(training)| {
+            // let mut list: Vec<TrainingsResponse> = Vec::new();
+            let response: TrainingsResponse = TrainingsResponse::from(training);
+            HttpResponse::Created().json(response)
+        })
+        .map_err(|_| HttpResponse::InternalServerError().into())
 }
